@@ -35,3 +35,4 @@
 yarn-debug.log*
 .yarn-integrity
 /config/google_credentials.json
+google_credentials.json
