@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_04_15_065001) do
+ActiveRecord::Schema.define(version: 2023_04_15_173120) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,6 +48,14 @@ ActiveRecord::Schema.define(version: 2023_04_15_065001) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "colors", force: :cascade do |t|
+    t.string "name"
+    t.bigint "category_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["category_id"], name: "index_colors_on_category_id"
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "name"
     t.text "description"
@@ -62,6 +70,14 @@ ActiveRecord::Schema.define(version: 2023_04_15_065001) do
     t.index ["sku"], name: "index_products_on_sku", unique: true
   end
 
+  create_table "sizes", force: :cascade do |t|
+    t.string "name"
+    t.bigint "category_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["category_id"], name: "index_sizes_on_category_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.string "transaction_type"
     t.bigint "product_id", null: false
@@ -73,6 +89,8 @@ ActiveRecord::Schema.define(version: 2023_04_15_065001) do
     t.index ["product_id"], name: "index_transactions_on_product_id"
   end
 
+  add_foreign_key "colors", "categories"
   add_foreign_key "products", "categories"
+  add_foreign_key "sizes", "categories"
   add_foreign_key "transactions", "products"
 end

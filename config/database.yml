@@ -13,13 +13,13 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-#  username: postgres
-#  password: root
-#  host: 127.0.0.1
 
 development:
   <<: *default
   database: warehouse_management_development
+  username: postgres
+  password: root
+  host: 127.0.0.1
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

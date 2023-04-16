@@ -13,12 +13,13 @@ class Product < ApplicationRecord
       file_metadata = {
         name: image.original_filename,
         mime_type: image.content_type,
-        parents: ['1roeR2JA26hqpdeW1wMoOcCvIbRRnDBPd']
+        parents: [ENV['IMAGE_FOLDER_ID']]
       }
       file = GoogleDrive::File.new(file_metadata)
 
       uploaded_file = google_drive.create_file(file, upload_source: StringIO.new(image.read), content_type: image.content_type)
-      google_drive.update_file(uploaded_file.id, { 'permissions' => [{ 'role' => 'reader', 'type' => 'anyone' }] })
+      permission = Google::Apis::DriveV3::Permission.new(role: 'reader', type: 'anyone')
+      google_drive.create_permission(uploaded_file.id, permission)
       uploaded_images << "https://drive.google.com/uc?id=#{uploaded_file.id}"
     end
 
