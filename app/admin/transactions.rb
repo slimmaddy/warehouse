@@ -1,19 +1,41 @@
 ActiveAdmin.register Transaction do
+  config.sort_order = 'created_at_desc'
   permit_params :transaction_type, :product_id, :quantity, :unit_price
 
   index do
     selectable_column
     id_column
     column :transaction_type
-    column :product
+    column :product do |t|
+      link_to "#{t.product.name}|#{t.product.size}|#{t.product.color}", admin_product_path(t.product)
+    end
     column :quantity
-    column :unit_price
+    column :unit_price do |t|
+      number_to_currency(t.unit_price, unit: "₫", precision: 0)
+    end
+    column :created_at
+    column :updated_at
     actions
   end
 
+  show do
+    attributes_table do
+      row :transaction_type
+      row :product do |t|
+        link_to "#{t.product.name}|#{t.product.size}|#{t.product.color}", admin_product_path(t.product)
+      end
+      row :quantity
+      row :unit_price do |t|
+        number_to_currency(t.unit_price, unit: "₫", precision: 0)
+      end
+    end
+    active_admin_comments # Add this line for comment block
+  end
+
   filter :transaction_type, as: :select, collection: %w(IMPORT EXPORT)
-  filter :product
+  filter :product, as: :select, collection: Product.all.map{ |p| ["#{p.name}|#{p.size}|#{p.color}", p.id] }
   filter :quantity
+  filter :unit_price
 
   form do |f|
     f.inputs "Transaction Details" do

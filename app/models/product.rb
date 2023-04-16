@@ -59,4 +59,10 @@ class Product < ApplicationRecord
 
     average_prices
   end
+
+  def revenue
+    import_value = self.transactions.where(transaction_type: 'IMPORT').sum('quantity * unit_price')
+    export_value = self.transactions.where(transaction_type: 'EXPORT').sum('quantity * unit_price')
+    import_value - export_value
+  end
 end

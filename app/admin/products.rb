@@ -9,6 +9,7 @@ ActiveAdmin.register Product do
     column :category
     column :description
     column :sku
+    column :size
     column :color
     column :images do |product|
       if product.images.present?
@@ -18,21 +19,15 @@ ActiveAdmin.register Product do
         "No Image"
       end
     end
-    column :remaining_quantity
-    column :average_import_unit_price do |product|
-      average_unit_prices = product.average_unit_price_by_type
-      number_to_currency(average_unit_prices['IMPORT'] || 0, unit: "₫", precision: 0)
-    end
-    column :average_export_unit_price do |product|
-      average_unit_prices = product.average_unit_price_by_type
-      number_to_currency(average_unit_prices['EXPORT'] || 0, unit: "₫", precision: 0)
-    end
     actions
   end
 
-  filter :sku
+  filter :product_code
   filter :name
   filter :category
+  filter :sku
+  filter :size
+  filter :color
 
   form do |f|
     f.inputs "Product Details" do
@@ -69,20 +64,42 @@ ActiveAdmin.register Product do
       row :sku
       row :size
       row :color
-      row :remaining_quantity
-      row :average_import_unit_price do |product|
-        average_unit_prices = product.average_unit_price_by_type
-        number_to_currency(average_unit_prices['IMPORT'] || 0, unit: "₫", precision: 0)
-      end
-      row :average_export_unit_price do |product|
-        average_unit_prices = product.average_unit_price_by_type
-        number_to_currency(average_unit_prices['EXPORT'] || 0, unit: "₫", precision: 0)
-      end
       row :images do |product|
         div do
           product.images.split(",").each do |image_url|
-              img src: image_url, style: "width: 200px; height: auto; margin: 5px;"
+            img src: image_url, style: "width: 200px; height: auto; margin: 5px;"
           end
+        end
+      end
+    end
+
+    panel "Curent state" do
+      attributes_table_for product do
+        row "Remaining quantity" do
+          product.remaining_quantity
+        end
+        row "Average Import Unit Price" do
+          average_unit_prices = product.average_unit_price_by_type
+          number_to_currency(average_unit_prices['IMPORT'] || 0, unit: "₫", precision: 0)
+        end
+        row "Average Export Unit Price" do
+          average_unit_prices = product.average_unit_price_by_type
+          number_to_currency(average_unit_prices['EXPORT'] || 0, unit: "₫", precision: 0)
+        end
+
+        row "Revenue" do
+          number_to_currency(product.revenue || 0, unit: "₫", precision: 0)
+        end
+      end
+    end
+
+    panel "Transactions" do
+      paginated_collection(product.transactions.page(params[:page]).per(5)) do
+        table_for collection do
+          column :transaction_type
+          column :quantity
+          column :unit_price
+          column :created_at
         end
       end
     end
