@@ -15,7 +15,7 @@ ActiveAdmin.register Category do
       row :description
     end
     panel "Products" do
-      paginated_collection(category.products.page(params[:page]).per(5)) do
+      paginated_collection(category.products.order(created_at: :asc).page(params[:page]).per(5)) do
         table_for collection do
           column :product_code
           column :name

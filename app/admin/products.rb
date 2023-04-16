@@ -94,7 +94,7 @@ ActiveAdmin.register Product do
     end
 
     panel "Transactions" do
-      paginated_collection(product.transactions.page(params[:page]).per(5)) do
+      paginated_collection(product.transactions.order(created_at: :asc).page(params[:page]).per(5)) do
         table_for collection do
           column :transaction_type
           column :quantity
