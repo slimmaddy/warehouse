@@ -1,13 +1,15 @@
 ActiveAdmin.register Product do
-  permit_params :sku, :name, :category_id, :description, :images
+  permit_params :sku, :name, :category_id, :description, :images, :product_code, :size, :color
 
   index do
     selectable_column
     id_column
-    column :sku
+    column :product_code
     column :name
     column :category
     column :description
+    column :sku
+    column :color
     column :images do |product|
       if product.images.present?
         first_image_url = product.images.split(",").first
@@ -17,6 +19,14 @@ ActiveAdmin.register Product do
       end
     end
     column :remaining_quantity
+    column :average_import_unit_price do |product|
+      average_unit_prices = product.average_unit_price_by_type
+      number_to_currency(average_unit_prices['IMPORT'] || 0, unit: "₫", precision: 0)
+    end
+    column :average_export_unit_price do |product|
+      average_unit_prices = product.average_unit_price_by_type
+      number_to_currency(average_unit_prices['EXPORT'] || 0, unit: "₫", precision: 0)
+    end
     actions
   end
 
@@ -26,10 +36,13 @@ ActiveAdmin.register Product do
 
   form do |f|
     f.inputs "Product Details" do
-      f.input :sku
+      f.input :product_code
       f.input :name
       f.input :category, include_blank: false
       f.input :description
+      f.input :sku
+      f.input :size, as: :string
+      f.input :color, as: :string
       f.input :images, as: :hidden
       # Display the current images
       if f.object.images.present?
@@ -49,10 +62,22 @@ ActiveAdmin.register Product do
 
   show do
     attributes_table do
-      row :sku
+      row :product_code
       row :name
       row :category
       row :description
+      row :sku
+      row :size
+      row :color
+      row :remaining_quantity
+      row :average_import_unit_price do |product|
+        average_unit_prices = product.average_unit_price_by_type
+        number_to_currency(average_unit_prices['IMPORT'] || 0, unit: "₫", precision: 0)
+      end
+      row :average_export_unit_price do |product|
+        average_unit_prices = product.average_unit_price_by_type
+        number_to_currency(average_unit_prices['EXPORT'] || 0, unit: "₫", precision: 0)
+      end
       row :images do |product|
         div do
           product.images.split(",").each do |image_url|
